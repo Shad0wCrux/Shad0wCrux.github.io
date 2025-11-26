@@ -1,13 +1,877 @@
 <!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Shad0wCrux | Security Operations Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <html>
-    <head>
-    </head>
+    <style>
+      :root {
+        --bg: #05060a;
+        --bg-elevated: #0b0f17;
+        --bg-soft: #111623;
+        --accent: #32e6b7;
+        --accent-soft: rgba(50, 230, 183, 0.2);
+        --accent-strong: #ff4d6a;
+        --text: #f7f9ff;
+        --text-soft: #a7b0d3;
+        --border-subtle: #1b2235;
+        --shadow-soft: 0 18px 45px rgba(0, 0, 0, 0.6);
+        --radius-lg: 18px;
+      }
 
-    <body>
-      <h1>Hello World!</h1>
-      <p>I'm hosted with GitHub pages! Yay! </p>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
 
-    </body>
+      body {
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
+          "Segoe UI", sans-serif;
+        background: radial-gradient(circle at top, #151b32 0, #05060a 55%);
+        color: var(--text);
+        min-height: 100vh;
+      }
 
-  </html>
+      .page {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 1.5rem 1.25rem 2.5rem;
+      }
+
+      header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1.5rem;
+        margin-bottom: 1.75rem;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+      }
+
+      .brand-logo {
+        width: 36px;
+        height: 36px;
+        border-radius: 12px;
+        background: conic-gradient(
+          from 160deg,
+          #32e6b7,
+          #00b3ff,
+          #ff4d6a,
+          #32e6b7
+        );
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 0 30px rgba(0, 179, 255, 0.35);
+        position: relative;
+      }
+
+      .brand-logo::after {
+        content: "";
+        position: absolute;
+        inset: 3px;
+        border-radius: inherit;
+        background: radial-gradient(circle at 30% 0%, #20263e, #05060a);
+      }
+
+      .brand-initials {
+        position: relative;
+        font-weight: 700;
+        font-size: 0.8rem;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: var(--accent);
+      }
+
+      .brand-text h1 {
+        font-size: 1.25rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .brand-text span {
+        display: block;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.18em;
+        color: var(--text-soft);
+        margin-top: 0.2rem;
+      }
+
+      .header-meta {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        gap: 0.75rem;
+        font-size: 0.75rem;
+        color: var(--text-soft);
+      }
+
+      .pill {
+        border-radius: 999px;
+        border: 1px solid var(--border-subtle);
+        padding: 0.4rem 0.75rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        background: linear-gradient(120deg, #0b0f17, #080a10);
+      }
+
+      .pill-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+      }
+
+      .pill-dot--ok {
+        background: #3df3ae;
+        box-shadow: 0 0 12px rgba(61, 243, 174, 0.7);
+      }
+
+      .pill-dot--warn {
+        background: #ffbb3c;
+        box-shadow: 0 0 12px rgba(255, 187, 60, 0.7);
+      }
+
+      main {
+        display: grid;
+        grid-template-columns: minmax(0, 2fr) minmax(0, 1.1fr);
+        gap: 1.5rem;
+      }
+
+      @media (max-width: 900px) {
+        main {
+          grid-template-columns: minmax(0, 1fr);
+        }
+
+        header {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+
+        .header-meta {
+          justify-content: flex-start;
+        }
+      }
+
+      .card {
+        background: radial-gradient(circle at top left, #151b32 0, #05060a 60%);
+        border-radius: var(--radius-lg);
+        padding: 1.25rem 1.3rem 1.1rem;
+        border: 1px solid var(--border-subtle);
+        box-shadow: var(--shadow-soft);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .card::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(
+          circle at top right,
+          rgba(50, 230, 183, 0.08),
+          transparent 65%
+        );
+        opacity: 0.7;
+        pointer-events: none;
+      }
+
+      .card-header {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        margin-bottom: 0.5rem;
+        z-index: 1;
+        position: relative;
+      }
+
+      .card-title {
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.16em;
+        color: var(--text-soft);
+      }
+
+      .card-subtitle {
+        font-size: 0.75rem;
+        color: var(--text-soft);
+      }
+
+      .chip {
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.16em;
+        padding: 0.2rem 0.6rem;
+        border-radius: 999px;
+        border: 1px solid rgba(50, 230, 183, 0.4);
+        background: radial-gradient(
+          circle at top,
+          rgba(50, 230, 183, 0.18),
+          transparent
+        );
+        color: var(--accent);
+      }
+
+      /* Threat map */
+      .threat-map {
+        position: relative;
+        height: 320px;
+        border-radius: 14px;
+        overflow: hidden;
+        background:
+          radial-gradient(circle at 20% 10%, #1f2b4a, transparent 55%),
+          radial-gradient(circle at 80% 50%, #122034, #05060a 70%);
+        border: 1px solid #1a2438;
+      }
+
+      .threat-map-grid {
+        position: absolute;
+        inset: 0;
+        background-image: linear-gradient(
+            rgba(255, 255, 255, 0.02) 1px,
+            transparent 1px
+          ),
+          linear-gradient(
+            90deg,
+            rgba(255, 255, 255, 0.025) 1px,
+            transparent 1px
+          );
+        background-size: 32px 32px, 32px 32px;
+        opacity: 0.7;
+      }
+
+      .threat-glow {
+        position: absolute;
+        inset: 12% 15%;
+        border-radius: 999px;
+        background: radial-gradient(
+          ellipse at center,
+          rgba(0, 255, 198, 0.5),
+          transparent 65%
+        );
+        filter: blur(16px);
+        opacity: 0.6;
+      }
+
+      .threat-circles {
+        position: absolute;
+        inset: 15%;
+        border-radius: 50%;
+        border: 1px solid rgba(180, 220, 255, 0.2);
+      }
+
+      .threat-circles::before,
+      .threat-circles::after {
+        content: "";
+        position: absolute;
+        inset: 16%;
+        border-radius: inherit;
+        border: 1px solid rgba(180, 220, 255, 0.16);
+      }
+
+      .threat-circles::after {
+        inset: 32%;
+      }
+
+      .threat-circles {
+        position: absolute;
+        inset: 20% 22%;
+        border-radius: 50%;
+        border: 5px solid rgba(50,230,183,0.15);
+        animation: threatCircles 4s ease-in-out infinite alternate;
+      }
+
+        @keyframes threatCircles {
+          from { transform: scale(1); opacity: .25; }
+          to   { transform: scale(1.05); opacity: .45; }
+        }
+
+      .threat-node {
+        position: absolute;
+        width: 9px;
+        height: 9px;
+        border-radius: 50%;
+        background: var(--accent);
+        box-shadow:
+          0 0 10px rgba(50, 230, 183, 0.9),
+          0 0 24px rgba(0, 255, 198, 0.8);
+      }
+
+      .threat-node--hot {
+        background: var(--accent-strong);
+        box-shadow:
+          0 0 10px rgba(255, 77, 106, 0.9),
+          0 0 30px rgba(255, 77, 106, 0.7);
+      }
+
+      .node-1 {
+        top: 28%;
+        left: 24%;
+      }
+
+      .node-2 {
+        top: 38%;
+        right: 22%;
+      }
+
+      .node-3 {
+        top: 64%;
+        left: 38%;
+      }
+
+      .node-4 {
+        top: 52%;
+        right: 36%;
+      }
+
+      .node-5 {
+        top: 40%;
+        left: 50%;
+      }
+
+      .map-legend {
+        position: absolute;
+        inset: auto 12px 12px 12px;
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.75rem;
+        color: var(--text-soft);
+        backdrop-filter: blur(18px);
+        background: linear-gradient(
+          120deg,
+          rgba(5, 6, 10, 0.85),
+          rgba(9, 13, 25, 0.9)
+        );
+        border-radius: 999px;
+        padding: 0.45rem 0.75rem;
+        border: 1px solid rgba(64, 94, 142, 0.8);
+      }
+
+      .legend-group {
+        display: flex;
+        align-items: center;
+        gap: 0.45rem;
+      }
+
+      .legend-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+      }
+
+      .legend-dot--active {
+        background: var(--accent);
+      }
+
+      .legend-dot--critical {
+        background: var(--accent-strong);
+      }
+
+      .legend-dot--normal {
+        background: #6371ff;
+      }
+
+      .metric {
+        display: flex;
+        align-items: baseline;
+        gap: 0.4rem;
+      }
+
+      .metric-value {
+        font-size: 1.7rem;
+        font-variant-numeric: tabular-nums;
+      }
+
+      .metric-unit {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.18em;
+        color: var(--text-soft);
+      }
+
+      .metric-label {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        color: var(--text-soft);
+      }
+
+      .metric-row {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 0.8rem;
+        font-size: 0.8rem;
+        color: var(--text-soft);
+      }
+
+      .metric-row span {
+        font-variant-numeric: tabular-nums;
+      }
+
+      .progress-bar {
+        position: relative;
+        width: 100%;
+        height: 8px;
+        border-radius: 999px;
+        background: #101520;
+        overflow: hidden;
+        margin-top: 0.6rem;
+      }
+
+      .progress-fill {
+        position: absolute;
+        inset: 0;
+        width: 0;
+        border-radius: inherit;
+        background: linear-gradient(90deg, #32e6b7, #00b3ff, #ffbb3c);
+        box-shadow: 0 0 12px rgba(50, 230, 183, 0.7);
+        transition: width 0.35s ease-out;
+      }
+
+      .subgrid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 1rem;
+      }
+
+      @media (max-width: 680px) {
+        .subgrid {
+          grid-template-columns: minmax(0, 1fr);
+        }
+      }
+
+      .stat-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-top: 0.6rem;
+        font-size: 0.8rem;
+      }
+
+      .stat-label {
+        color: var(--text-soft);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+      }
+
+      .stat-value {
+        font-variant-numeric: tabular-nums;
+      }
+
+      .badge {
+        font-size: 0.7rem;
+        padding: 0.15rem 0.45rem;
+        border-radius: 999px;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+      }
+
+      .badge--critical {
+        border-color: rgba(255, 77, 106, 0.7);
+        color: var(--accent-strong);
+      }
+
+      .badge--warn {
+        border-color: rgba(255, 187, 60, 0.7);
+        color: #ffbb3c;
+      }
+
+      /* Event log & alerts */
+
+      .log-list,
+      .alert-list {
+        margin-top: 0.6rem;
+        display: grid;
+        gap: 0.4rem;
+        font-size: 0.78rem;
+      }
+
+      .log-entry,
+      .alert-entry {
+        display: grid;
+        grid-template-columns: 74px auto;
+        gap: 0.5rem;
+        align-items: center;
+      }
+
+      .log-time {
+        font-variant-numeric: tabular-nums;
+        color: var(--text-soft);
+        opacity: 0.8;
+      }
+
+      .log-message {
+        color: var(--text);
+      }
+
+      .alert-entry {
+        grid-template-columns: 80px auto;
+      }
+
+      .alert-label {
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        font-size: 0.7rem;
+        color: var(--text-soft);
+      }
+
+      .alert-critical {
+        color: var(--accent-strong);
+      }
+
+      .alert-warn {
+        color: #ffbb3c;
+      }
+
+      .sparkline {
+        margin-top: 0.7rem;
+        display: flex;
+        gap: 0.2rem;
+        align-items: flex-end;
+        height: 42px;
+      }
+
+      .sparkline-bar {
+        flex: 1;
+        border-radius: 999px 999px 0 0;
+        background: linear-gradient(180deg, #32e6b7, rgba(50, 230, 183, 0.05));
+        opacity: 0.75;
+      }
+
+      .sparkline-bar--hot {
+        background: linear-gradient(180deg, #ff4d6a, rgba(255, 77, 106, 0.08));
+      }
+
+      footer {
+        margin-top: 1.8rem;
+        font-size: 0.7rem;
+        color: var(--text-soft);
+        display: flex;
+        justify-content: space-between;
+        gap: 1rem;
+        flex-wrap: wrap;
+      }
+
+      footer span {
+        opacity: 0.8;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="page">
+      <header>
+        <div class="brand">
+          <div class="brand-logo">
+            <div class="brand-initials">SCX</div>
+          </div>
+          <div class="brand-text">
+            <h1>Shad0wCrux</h1>
+            <span>Adaptive Threat Operations Console</span>
+          </div>
+        </div>
+
+        <div class="header-meta">
+          <div class="pill">
+            <span class="pill-dot pill-dot--ok"></span>
+            <span>SOC Link: Online</span>
+          </div>
+          <div class="pill">
+            <span class="pill-dot pill-dot--warn"></span>
+            <span>Simulated Traffic: High</span>
+          </div>
+        </div>
+      </header>
+
+      <main>
+        <!-- LEFT COLUMN -->
+        <section class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Global Threat Surface</div>
+              <div class="card-subtitle">Telemetry View</div>
+            </div>
+            <div class="chip">Live Model &bull; v0.1</div>
+          </div>
+
+          <div class="threat-map">
+            <div class="threat-map-grid"></div>
+            <div class="threat-glow"></div>
+            <div class="threat-circles"></div>
+
+            <div class="threat-node node-1"></div>
+            <div class="threat-node threat-node--hot node-2"></div>
+            <div class="threat-node node-3"></div>
+            <div class="threat-node node-4"></div>
+            <div class="threat-node node-5"></div>
+
+
+
+            <div class="map-legend">
+              <div class="legend-group">
+                <span class="legend-dot legend-dot--active"></span>
+                <span>Active edges: <strong id="edges-count">37</strong></span>
+              </div>
+              <div class="legend-group">
+                <span class="legend-dot legend-dot--critical"></span>
+                <span>Critical: <strong id="critical-count">2</strong></span>
+              </div>
+              <div class="legend-group">
+                <span class="legend-dot legend-dot--normal"></span>
+                <span>Stable zones: <strong>7</strong></span>
+              </div>
+            </div>
+          </div>
+
+          <div class="metric-row">
+            <div class="metric">
+              <div class="metric-value" id="pps">128.4</div>
+              <div class="metric-unit">K pkt/s</div>
+            </div>
+            <div class="metric-label">Inbound Traffic</div>
+          </div>
+
+          <div class="progress-bar">
+            <div class="progress-fill" id="traffic-fill"></div>
+          </div>
+        </section>
+
+        <!-- RIGHT COLUMN -->
+        <section class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">System Health</div>
+              <div class="card-subtitle">
+                Host: lab-sentinel-01 &bull; Region: Test / Local
+              </div>
+            </div>
+          </div>
+
+          <div class="subgrid">
+            <div>
+              <div class="metric-row">
+                <span class="stat-label">CPU Load</span>
+                <span class="stat-value" id="cpu-load">37%</span>
+              </div>
+              <div class="progress-bar">
+                <div class="progress-fill" id="cpu-fill"></div>
+              </div>
+
+              <div class="metric-row" style="margin-top:0.9rem;">
+                <span class="stat-label">RAM Utilization</span>
+                <span class="stat-value" id="ram-load">62%</span>
+              </div>
+              <div class="progress-bar">
+                <div class="progress-fill" id="ram-fill"></div>
+              </div>
+
+              <div class="stat-row">
+                <span class="stat-label">Uptime</span>
+                <span class="stat-value" id="uptime">12d 07:21</span>
+              </div>
+              <div class="stat-row">
+                <span class="stat-label">Sessions</span>
+                <span class="stat-value" id="sessions">184</span>
+              </div>
+            </div>
+
+            <div>
+              <div class="stat-row">
+                <span class="stat-label">Alerts (5m)</span>
+                <span class="stat-value">
+                  <span id="alerts-critical">2</span>
+                  <span class="badge badge--critical">critical</span>
+                </span>
+              </div>
+              <div class="stat-row">
+                <span class="stat-label">Alerts (1h)</span>
+                <span class="stat-value">
+                  <span id="alerts-warn">7</span>
+                  <span class="badge badge--warn">elevated</span>
+                </span>
+              </div>
+
+              <div class="sparkline">
+                <div class="sparkline-bar" style="height:18%;"></div>
+                <div class="sparkline-bar" style="height:30%;"></div>
+                <div class="sparkline-bar sparkline-bar--hot" style="height:70%;"></div>
+                <div class="sparkline-bar" style="height:40%;"></div>
+                <div class="sparkline-bar sparkline-bar--hot" style="height:90%;"></div>
+                <div class="sparkline-bar" style="height:55%;"></div>
+                <div class="sparkline-bar" style="height:26%;"></div>
+              </div>
+              <div class="metric-label" style="margin-top:0.3rem;">
+                Event density &bull; rolling window
+              </div>
+            </div>
+          </div>
+
+          <hr style="border:none;border-top:1px solid #1b2235;margin:1rem 0;" />
+
+          <div class="card-header" style="margin-bottom:0.1rem;">
+            <div class="card-title">Event Log</div>
+          </div>
+
+          <div class="log-list">
+            <div class="log-entry">
+              <span class="log-time">21:03:12</span>
+              <span class="log-message">
+                Correlated anomaly signature emitted &mdash; profile
+                <strong>GAMMA-EDGE</strong> (demo).
+              </span>
+            </div>
+            <div class="log-entry">
+              <span class="log-time">21:02:48</span>
+              <span class="log-message">
+                Lateral movement heuristic tripped on subnet
+                <strong>10.42.0.0/16</strong>.
+              </span>
+            </div>
+            <div class="log-entry">
+              <span class="log-time">21:01:27</span>
+              <span class="log-message">
+                Login spray detected from region
+                <strong>ap-sim-3</strong>.
+              </span>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <section class="card" style="margin-top:1.5rem;">
+        <div class="card-header" style="margin-bottom:0.3rem;">
+          <div class="card-title">Active Alerts</div>
+          <div class="chip">Simulated &bull; No real telemetry</div>
+        </div>
+
+        <div class="alert-list">
+          <div class="alert-entry">
+            <span class="alert-label alert-critical">CRITICAL</span>
+            <span>
+              Cluster <strong>lab-edge-02</strong> exceeded anomaly threshold
+              for encrypted egress on port 443 (model only).
+            </span>
+          </div>
+          <div class="alert-entry">
+            <span class="alert-label alert-warn">ELEVATED</span>
+            <span>
+              Repeated inbound scans mapped to adversary profile
+              <strong>SCX-RAVEN</strong>.
+            </span>
+          </div>
+          <div class="alert-entry">
+            <span class="alert-label">INFO</span>
+            <span>
+              Baseline recalibration in progress &mdash; signals may appear
+              noisier than usual.
+            </span>
+          </div>
+        </div>
+      </section>
+
+      <footer>
+        <span>Shad0wCrux / GitHub Pages &middot;</span>
+        <span>Built with plain HTML, CSS &amp; JS on top of Jekyll hosting.</span>
+      </footer>
+    </div>
+
+    <script>
+      function clamp(value, min, max) {
+        return Math.max(min, Math.min(max, value));
+      }
+
+      const refs = {
+        pps: document.getElementById("pps"),
+        trafficFill: document.getElementById("traffic-fill"),
+        cpuLoad: document.getElementById("cpu-load"),
+        cpuFill: document.getElementById("cpu-fill"),
+        ramLoad: document.getElementById("ram-load"),
+        ramFill: document.getElementById("ram-fill"),
+        sessions: document.getElementById("sessions"),
+        alertsCritical: document.getElementById("alerts-critical"),
+        alertsWarn: document.getElementById("alerts-warn"),
+        edges: document.getElementById("edges-count"),
+        criticalNodes: document.getElementById("critical-count"),
+      };
+
+      let state = {
+        pps: 128.4,
+        cpu: 37,
+        ram: 62,
+        sessions: 184,
+        alertsCritical: 2,
+        alertsWarn: 7,
+        edges: 37,
+        criticalNodes: 2,
+      };
+
+      function render() {
+        refs.pps.textContent = state.pps.toFixed(1);
+        refs.trafficFill.style.width = clamp(state.pps / 2, 10, 100) + "%";
+
+        refs.cpuLoad.textContent = state.cpu.toFixed(2) + "%";
+        refs.cpuFill.style.width = state.cpu + "%";
+
+        refs.ramLoad.textContent = state.ram.toFixed(2) + "%";
+        refs.ramFill.style.width = state.ram + "%";
+
+        refs.sessions.textContent = state.sessions;
+        refs.alertsCritical.textContent = state.alertsCritical;
+        refs.alertsWarn.textContent = state.alertsWarn;
+        refs.edges.textContent = state.edges;
+        refs.criticalNodes.textContent = state.criticalNodes;
+      }
+
+      function nudge() {
+        state.pps = clamp(state.pps + (Math.random() - 0.5) * 12, 64, 220);
+        state.cpu = clamp(state.cpu + (Math.random() - 0.5) * 8, 12, 96);
+        state.ram = clamp(state.ram + (Math.random() - 0.5) * 6, 24, 94);
+        state.sessions = clamp(
+          state.sessions + Math.round((Math.random() - 0.5) * 16),
+          80,
+          320
+        );
+        state.edges = clamp(
+          state.edges + Math.round((Math.random() - 0.5) * 4),
+          20,
+          64
+        );
+
+        if (Math.random() < 0.3) {
+          state.alertsCritical = clamp(
+            state.alertsCritical + (Math.random() < 0.5 ? -1 : 1),
+            0,
+            4
+          );
+          state.criticalNodes = clamp(
+            state.criticalNodes + (Math.random() < 0.5 ? -1 : 1),
+            0,
+            4
+          );
+        }
+
+        if (Math.random() < 0.4) {
+          state.alertsWarn = clamp(
+            state.alertsWarn + (Math.random() < 0.5 ? -1 : 1),
+            2,
+            12
+          );
+        }
+
+        render();
+      }
+
+      render();
+      setInterval(nudge, 1600);
+    </script>
+  </body>
+</html>
+
